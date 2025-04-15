@@ -1,11 +1,10 @@
-# 📡 PyLoRaWAN
+# 📡 RP2040-MiniPill-LoRa - PyLoRaWAN 
 
 [![MicroPython](https://img.shields.io/badge/platform-MicroPython-blue.svg)](https://micropython.org/)
 [![LoRaWAN](https://img.shields.io/badge/protocol-LoRaWAN-orange.svg)](https://lora-alliance.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A lightweight, MicroPython-based LoRaWAN communication stack for SX1276 LoRa modules.  
-Supports **ABP** and **OTAA** activation, channel hopping, MAC command handling, and configurable region-specific settings (EU868, US915).
+This document is part of the [RP2040-MiniPill-LoRa](https://hackaday.io/project/196814-rp2040-minipill-lora) project, a lightweight, open-source implementation for LoRaWAN communication using the RP2040 microcontroller. The goal of this project is to offer a compact and customizable platform for experimenting with LoRa networks using MicroPython. The PyLoRaWAN library included in the firmware allows for seamless LoRaWAN activation (OTAA and ABP), channel hopping, channel hopping, MAC command handling, configurable region-specific settings (EU868, US915) and parameter configuration—making it ideal for low-power, embedded IoT applications.
 
 ---
 
@@ -23,11 +22,11 @@ Supports **ABP** and **OTAA** activation, channel hopping, MAC command handling,
 
 ## 📁 File Structure
 
-| File              | Description                                      |
-|-------------------|--------------------------------------------------|
-| `py_lorawan.py`   | Main class handling LoRaWAN protocol             |
-| `lora_config.json`| Optional file to override default LoRa settings |
-| `fcnt.json`       | Frame counter persistence between reboots        |
+| File              | Description                                                                                   |
+|-------------------|-----------------------------------------------------------------------------------------------|
+| `main.py`         | The main script that will contain your Python program. It is executed after boot.py           |
+| `lora_config.json`| Optional file to override default LoRa settings                                               |
+| `fcnt.json`       | Frame counter persistence between reboots                                                     |
 
 ---
 
@@ -36,6 +35,8 @@ Supports **ABP** and **OTAA** activation, channel hopping, MAC command handling,
 ### Requirements
 
 - RP2040-MiniPill-LoRa board
+- MicroPython Kernel with PyLoRaWAN library (link follows)
+- TTN or ChirpStack integration of your device
 
 ---
 
@@ -55,7 +56,6 @@ auth = {
 lora.join(ActivationType.ABP, auth)
 lora.send_test_msg()
 ```
-
 
 ### OTAA Activation
 
