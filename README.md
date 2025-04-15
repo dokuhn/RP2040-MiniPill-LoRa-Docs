@@ -42,19 +42,56 @@ This document is part of the [RP2040-MiniPill-LoRa](https://hackaday.io/project/
 
 ## 🚀 Quick Start
 
+Below is a minimal example demonstrating how to connect to a LoRaWAN network using **Activation By Personalization (ABP)** with the PyLoRaWAN library on an RP2040-MiniPill-LoRa board.
+
 ### ABP Activation
 
 ```python
-from py_lorawan import PyLoRaWAN, ActivationType
+from machine import Pin, SPI
+import machine
+import time
 
-lora = PyLoRaWAN(spi, cs)
-auth = {
-    'devaddr': '26011F33',
-    'nwskey': [0x00, 0x01, ...],  # 16-byte list
-    'appskey': [0x00, 0x01, ...]
-}
-lora.join(ActivationType.ABP, auth)
-lora.send_test_msg()
+from PyLoRaWAN import PyLoRaWAN, ActivationType
+
+# --- Anonymized ABP credentials (replace with your actual values) ---
+devaddr = [0x26, 0x01, 0x1B, 0xA1]
+nwskey = [0x01]*16  # Dummy session key for example
+appskey = [0x02]*16  # Dummy session key for example
+
+# Setup SPI and Chip Select for the LoRa module
+spi = machine.SPI(0,
+    baudrate=100000,
+    polarity=1,
+    phase=1,
+    bits=8,
+    firstbit=machine.SPI.MSB,
+    sck=Pin('GP2'),
+    mosi=Pin('GP3'),
+    miso=Pin('GP4'))
+
+cs = Pin('GP5')
+
+# Optional startup delay
+time.sleep(10)
+
+# Initialize LoRaWAN and join using ABP
+lorawan = PyLoRaWAN(spi, cs)
+lorawan.join(
+        ActivationType.ABP,
+        auth={
+            'devaddr': devaddr,
+            'nwskey': nwskey,
+            'appskey': appskey
+        })
+
+# Send test message in loop
+if __name__ == '__main__':
+    try:
+        while True:
+            lorawan.send_test_msg()
+            time.sleep(30)
+    except KeyboardInterrupt:
+        print("\nProgram terminated by user.")
 ```
 
 ### OTAA Activation
@@ -69,7 +106,7 @@ from random import randrange
 
 from PyLoRaWAN import PyLoRaWAN, ActivationType
 
-# LoRaWAN OTAA credentials (replace with your actual values)
+# --- LoRaWAN OTAA credentials (replace with your actual values) ---
 deveui = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 appeui = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 appkey = [0x00] * 16
