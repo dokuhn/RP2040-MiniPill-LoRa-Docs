@@ -200,20 +200,6 @@ On boot, the library provides console output about:
 
 This configuration flexibility makes it easy to adapt your firmware to regional regulations or test environments without recompilation or re-deployment.
 
-
-
-## ⚙️ Configuration via JSON
-
-Create a `lora_config.json` on your device to override default parameters:
-
-```json
-{
-  "sf": 10,
-  "output_power": 14,
-  "invert_iq_rx": false
-}
-```
-
 ---
 
 ## 🧩 Class Overview: `PyLoRaWAN`
