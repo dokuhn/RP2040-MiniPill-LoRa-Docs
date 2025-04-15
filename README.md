@@ -56,17 +56,61 @@ lora.join(ActivationType.ABP, auth)
 lora.send_test_msg()
 ```
 
+
 ### OTAA Activation
 
+This example demonstrates how to use PyLoRaWAN with **Over-The-Air Activation (OTAA)** on the RP2040-MiniPill-LoRa board. The device will join a LoRaWAN network and send a test message repeatedly.
+
 ```python
-auth = {
-    'deveui': b'\x01\x02...\x08',
-    'appeui': b'\x70\xB3...\x00',
-    'appkey': b'\x2B\x7E...\xAE',
-    'devnonce': b'\x00\x01'
-}
-lora.join(ActivationType.OTAA, auth)
-lora.send_data("Hello OTAA")
+from machine import Pin, SPI
+import machine
+import time
+from random import randrange
+
+from PyLoRaWAN import PyLoRaWAN, ActivationType
+
+# LoRaWAN OTAA credentials (replace with your actual values)
+deveui = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+appeui = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+appkey = [0x00] * 16
+devnonce = [randrange(256), randrange(256)]
+
+# Setup SPI and Chip Select for the LoRa module
+spi = machine.SPI(0,
+    baudrate=100_000,
+    polarity=1,
+    phase=1,
+    bits=8,
+    firstbit=machine.SPI.MSB,
+    sck=machine.Pin('GP2'),
+    mosi=machine.Pin('GP3'),
+    miso=machine.Pin('GP4'))
+
+cs = machine.Pin('GP5')
+
+# Optional startup delay
+time.sleep(10)
+
+# Initialize LoRaWAN and join using OTAA
+lorawan = PyLoRaWAN(spi, cs)
+lorawan.join(
+    ActivationType.OTAA,
+    auth={
+        'deveui': deveui,
+        'appeui': appeui,
+        'appkey': appkey,
+        'devnonce': devnonce
+    }
+)
+
+# Send test message in loop
+if __name__ == '__main__':
+    try:
+        while True:
+            lorawan.send_test_msg()
+            time.sleep(30)
+    except KeyboardInterrupt:
+        print("\nProgram terminated by user.")
 ```
 
 ---
