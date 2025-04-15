@@ -115,6 +115,93 @@ if __name__ == '__main__':
 
 ---
 
+## ⚙️ Overriding Default LoRa Parameters via `lora_config.json`
+
+The `PyLoRaWAN` library supports dynamic overriding of the default LoRa modem parameters using a configuration file named `lora_config.json`. This file can be placed directly on the microcontroller's file system and allows for quick parameter adjustments without changing the main source code.
+
+### 🧐 Why Use It
+
+- **Platform Flexibility**: Deploy the same script on multiple devices by simply modifying the config file.
+- **Runtime Customization**: Easily adapt frequencies, bandwidth, power, and more.
+- **No Reflashing Needed**: Make changes without updating firmware (for e.g. with the smartphone). 
+
+### 📁 Filename & Location
+
+The file must be saved at the root of the device's filesystem as `lora_config.json`.
+
+### 📄 Example: `lora_config.json`
+
+```json
+{
+  "freq_khz": 868500,
+  "sf": 10,
+  "coding_rate": 5,
+  "bw": "125",
+  "tx_ant": "PA_BOOST",
+  "output_power": 14,
+  "syncword": 52,
+  "preamble_len": 8,
+  "invert_iq_rx": true,
+  "crc_en": true
+}
+```
+
+### 🧱 Parameter Descriptions
+
+| Key             | Description |
+|----------------|-------------|
+| `freq_khz`     | Operating frequency in kilohertz (e.g., 868100 for 868.1 MHz) |
+| `sf`           | Spreading Factor (valid range: 7–12) |
+| `coding_rate`  | FEC coding rate (e.g., 5 for 4/5) |
+| `bw`           | Bandwidth in kHz (`"125"`, `"250"`, or `"500"`) |
+| `tx_ant`       | TX antenna path (e.g., `"PA_BOOST"`, `"RFO"`) |
+| `output_power` | Output power in dBm |
+| `syncword`     | Sync word (e.g., `0x34` for LoRaWAN) |
+| `preamble_len` | Preamble length (default is 8) |
+| `invert_iq_rx` | Invert IQ on RX (true for LoRaWAN) |
+| `crc_en`       | Enable CRC for payload (boolean) |
+
+### 💡 How It Works
+
+During initialization, the library attempts to read and apply settings from `lora_config.json`:
+
+```python
+self._load_default_lora_cfg()
+```
+
+If the file exists, each recognized field will update the internal configuration (`default_lora_cfg`). Unknown fields will be ignored with a log message.
+
+**Core logic in `_load_default_lora_cfg()`:**
+
+```python
+if CONFIG_FILE in os.listdir():
+    with open(CONFIG_FILE, "r") as f:
+        config = ujson.load(f)
+    for key, value in config.items():
+        if key in self.default_lora_cfg:
+            self.default_lora_cfg[key] = value
+```
+
+### 🔍 Runtime Feedback
+
+On boot, the library provides console output about:
+
+- Which parameters were applied from file
+- Any unrecognized entries
+- If the file is missing or malformed
+
+### 🔧 Best Practices
+
+- Prepare per-device `lora_config.json` files to customize behavior for different deployments.
+- Use consistent field names and valid values to avoid silent fallbacks.
+- Include a comment block in your firmware reminding users of this feature.
+
+---
+
+This configuration flexibility makes it easy to adapt your firmware to regional regulations or test environments without recompilation or re-deployment.
+
+
+
 ## ⚙️ Configuration via JSON
 
 Create a `lora_config.json` on your device to override default parameters:
